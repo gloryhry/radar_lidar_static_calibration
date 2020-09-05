@@ -1,0 +1,25 @@
+{
+    "configurations": [
+        {
+            "browse": {
+                "databaseFilename": "",
+                "limitSymbolsToIncludedHeaders": true
+            },
+            "includePath": [
+                "/opt/ros/melodic/include/**",
+                "/media/psf/Home/Pioneer_Code/pioneer_radar_ws/devel/include/**",
+                "/media/psf/Home/Pioneer_Code/pioneer_radar_ws/src/ground_filter/include/**",
+                "/media/psf/Home/Pioneer_Code/pioneer_radar_ws/src/radar_lidar_calibration/include/**",
+                "/media/psf/Home/Pioneer_Code/pioneer_radar_ws/src/radar_lidar_static_calibration/include/**",
+                "/media/psf/Home/Pioneer_Code/pioneer_radar_ws/src/radar_to_pointcloud2/include/**",
+                "/usr/include/**"
+            ],
+            "name": "ROS",
+            "intelliSenseMode": "gcc-x64",
+            "compilerPath": "/usr/bin/gcc",
+            "cStandard": "gnu11",
+            "cppStandard": "gnu++14"
+        }
+    ],
+    "version": 4
+}
