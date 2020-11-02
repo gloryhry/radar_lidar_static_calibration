@@ -1,0 +1,7 @@
+<launch>
+
+    <node pkg="radar_lidar_static_calibration" type="radar_lidar_static_calibration_node" name="static_calibration" output="screen" >
+        <param name="lidar_topic" value="/filtered_points_no_ground" />
+        <param name="radar_topic" value="/RadarDetection/Pointcloud2/Near_2" />
+    </node>
+</launch>

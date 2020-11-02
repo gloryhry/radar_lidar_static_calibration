@@ -1,0 +1,8 @@
+<launch>
+
+    <node pkg="radar_lidar_static_calibration" type="radar_match" name="radar_match" output="screen" >
+        <param name="Odometry_topic" value="/localization/ackermanpos" />
+        <param name="radar_topic" value="/RadarDetection/Pointcloud2/Near_0" />
+        <!-- <param name="radar_topic" value="/livox/filtered_PointCloud2" /> -->
+    </node>
+</launch>

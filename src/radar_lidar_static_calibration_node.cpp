@@ -8,11 +8,14 @@
 #include <pcl/common/transforms.h>
 #include <pcl/point_types.h>
 #include <pcl/point_cloud.h>
+#include <pcl_conversions/pcl_conversions.h>
 #include <pcl_ros/transforms.h>
 
 #include <message_filters/subscriber.h>
 #include <message_filters/sync_policies/approximate_time.h>
 #include <message_filters/synchronizer.h>
+
+#include <calibration.h>
 
 using namespace message_filters;
 using namespace std;
@@ -23,7 +26,13 @@ string pkg_loc;
 
 void calibration_callback(const sensor_msgs::PointCloud2ConstPtr lidar_msg, const sensor_msgs::PointCloud2ConstPtr radar_msg)
 {
-    
+    pcl::PointCloud<pcl::PointXYZ>::Ptr lidar_cloud(new pcl::PointCloud<pcl::PointXYZ>());
+    pcl::PointCloud<pcl::PointXYZ>::Ptr radar_cloud(new pcl::PointCloud<pcl::PointXYZ>());
+    pcl::fromROSMsg(*lidar_msg, *lidar_cloud);
+    pcl::fromROSMsg(*radar_msg, *radar_cloud);
+    RadarCalibration radar_cali(lidar_cloud, radar_cloud);
+    radar_cali.showLidar();
+    radar_cali.showRadar();
 }
 
 int main(int argc, char **argv)
@@ -39,7 +48,7 @@ int main(int argc, char **argv)
 
     private_nh.param<string>("lidar_topic", lidar_topic, "/lidar_PointCloud2");
     private_nh.param<string>("radar_topic", radar_topic, "/radar_PointCloud2");
-    private_nh.param<string>("sync_queue_size", sync_queue_size, 50);
+    private_nh.param<int>("sync_queue_size", sync_queue_size, 500);
 
     message_filters::Subscriber<sensor_msgs::PointCloud2> lidar_sub(nh, lidar_topic, 10);
     message_filters::Subscriber<sensor_msgs::PointCloud2> radar_sub(nh, radar_topic, 10);

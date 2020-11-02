@@ -3,6 +3,7 @@ project(radar_lidar_static_calibration)
 
 ## Compile as C++11, supported in ROS Kinetic and newer
 add_compile_options(-std=c++11)
+# set(CMAKE_BUILD_TYPE Debug)
 
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
@@ -17,11 +18,14 @@ find_package(catkin REQUIRED COMPONENTS
   sensor_msgs
   tf
   visualization_msgs
+  nav_msgs
 )
 
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
 find_package(OpenCV REQUIRED)
+find_package(cmake_modules REQUIRED)
+find_package(Eigen3 REQUIRED)
 
 ## Uncomment this if the package has a setup.py. This macro ensures
 ## modules and global scripts declared therein get installed
@@ -126,7 +130,8 @@ include_directories(
   ${catkin_INCLUDE_DIRS}
 )
 include_directories(include ${OpenCV_INCLUDE_DIRS})
-
+include_directories(include ${EIGEN3_INCLUDE_DIR})
+add_definitions(${EIGEN_DEFINITIONS})
 
 ## Declare a C++ library
 # add_library(${PROJECT_NAME}
@@ -213,7 +218,21 @@ include_directories(include ${OpenCV_INCLUDE_DIRS})
 ## Add folders to be run by python nosetests
 # catkin_add_nosetests(test)
 
+add_library(radar_calibration src/calibration.cpp)
+target_link_libraries(radar_calibration 
+  ${catkin_LIBRARIES}
+  ${OpenCV_LIBRARIES}
+)
+
 add_executable(${PROJECT_NAME}_node src/radar_lidar_static_calibration_node.cpp)
 target_link_libraries(${PROJECT_NAME}_node
   ${catkin_LIBRARIES}
+  radar_calibration
 )
+
+add_executable(radar_match src/radar_match/radar_match.cpp
+                           src/radar_match/match.cpp)
+target_link_libraries(radar_match
+  ${catkin_LIBRARIES}
+  ${EIGEN3_LIBRARIES}
+  )
