@@ -1,0 +1,15 @@
+steps:
+  - uses: ros-tooling/setup-ros@v0.1
+    with:
+      required-ros-distributions: melodic
+  - uses: ros-tooling/action-ros-ci@v0.2
+    with:
+      colcon-defaults: |
+        {
+          "build": {
+            "mixin": ["asan-gcc"]
+          }
+        }
+      colcon-mixin-repository: https://raw.githubusercontent.com/colcon/colcon-mixin-repository/3e627e0fa30db85aea05a50e2c61a9832664d236/index.yaml
+      package-name: radar_lidar_static_calibration
+      target-ros1-distro: melodic
