@@ -230,6 +230,8 @@ target_link_libraries(radar_calibration
   ${OpenCV_LIBRARIES}
   ${PCL_LIBRARIES}
 )
+add_dependencies(radar_calibration  ${catkin_EXPORTED_TARGETS})
+
 
 add_executable(${PROJECT_NAME}_node src/radar_lidar_static_calibration_node.cpp)
 target_link_libraries(${PROJECT_NAME}_node
@@ -237,6 +239,7 @@ target_link_libraries(${PROJECT_NAME}_node
   ${PCL_LIBRARIES}
   radar_calibration
 )
+add_dependencies(${PROJECT_NAME}_node  ${catkin_EXPORTED_TARGETS})
 
 add_executable(radar_match src/radar_match/radar_match.cpp
                            src/radar_match/match.cpp)
@@ -245,6 +248,8 @@ target_link_libraries(radar_match
   ${EIGEN3_LIBRARIES}
   ${PCL_LIBRARIES}
   )
+ add_dependencies(radar_match  ${catkin_EXPORTED_TARGETS})
+
 
 add_executable(select_point src/select_point.cpp)
 
@@ -252,6 +257,8 @@ target_link_libraries(select_point
   ${catkin_LIBRARIES}
   ${PCL_LIBRARIES}
 )
+add_dependencies(select_point  ${catkin_EXPORTED_TARGETS})
+
 
 add_executable(calibration src/radar_lidar_calibration.cpp)
 
@@ -259,3 +266,4 @@ target_link_libraries(calibration
   ${catkin_LIBRARIES}
   ${PCL_LIBRARIES}
 )
+add_dependencies(calibration  ${catkin_EXPORTED_TARGETS})
