@@ -19,6 +19,7 @@ find_package(catkin REQUIRED COMPONENTS
   tf
   visualization_msgs
   nav_msgs
+  ecal_to_ros
 )
 
 ## System dependencies are found with CMake's conventions
@@ -26,6 +27,7 @@ find_package(catkin REQUIRED COMPONENTS
 find_package(OpenCV REQUIRED)
 find_package(cmake_modules REQUIRED)
 find_package(Eigen3 REQUIRED)
+find_package(PCL REQUIRED)
 
 ## Uncomment this if the package has a setup.py. This macro ensures
 ## modules and global scripts declared therein get installed
@@ -132,6 +134,9 @@ include_directories(
 include_directories(include ${OpenCV_INCLUDE_DIRS})
 include_directories(include ${EIGEN3_INCLUDE_DIR})
 add_definitions(${EIGEN_DEFINITIONS})
+include_directories(include ${PCL_INCLUDE_DIRS})
+link_directories(${PCL_LIBRARY_DIRS})
+
 
 ## Declare a C++ library
 # add_library(${PROJECT_NAME}
@@ -218,15 +223,18 @@ add_definitions(${EIGEN_DEFINITIONS})
 ## Add folders to be run by python nosetests
 # catkin_add_nosetests(test)
 
+
 add_library(radar_calibration src/calibration.cpp)
 target_link_libraries(radar_calibration 
   ${catkin_LIBRARIES}
   ${OpenCV_LIBRARIES}
+  ${PCL_LIBRARIES}
 )
 
 add_executable(${PROJECT_NAME}_node src/radar_lidar_static_calibration_node.cpp)
 target_link_libraries(${PROJECT_NAME}_node
   ${catkin_LIBRARIES}
+  ${PCL_LIBRARIES}
   radar_calibration
 )
 
@@ -235,4 +243,19 @@ add_executable(radar_match src/radar_match/radar_match.cpp
 target_link_libraries(radar_match
   ${catkin_LIBRARIES}
   ${EIGEN3_LIBRARIES}
+  ${PCL_LIBRARIES}
   )
+
+add_executable(select_point src/select_point.cpp)
+
+target_link_libraries(select_point
+  ${catkin_LIBRARIES}
+  ${PCL_LIBRARIES}
+)
+
+add_executable(calibration src/radar_lidar_calibration.cpp)
+
+target_link_libraries(calibration 
+  ${catkin_LIBRARIES}
+  ${PCL_LIBRARIES}
+)
