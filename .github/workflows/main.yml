@@ -62,8 +62,29 @@ jobs:
           colcon build --continue-on-error
           source install/setup.bash
         # colcon test && colcon test-result
+      - name: ROS1-3 Build, Test, Lint
+        if: ${{ matrix.ros_distro == "noetic" }}
+        shell: bash
+        run: |
+          sudo apt update && sudo apt install python3-wstool
+          mkdir -p $GITHUB_WORKSPACE/../catkin_ws/src
+          cd $GITHUB_WORKSPACE/../catkin_ws/src
+          ln -s $GITHUB_WORKSPACE
+          cp $GITHUB_WORKSPACE/.rosinstall ./
+          wstool update -t ./
+          cd ..
+          catkin_init_workspace
+          source /opt/ros/$(rosversion -d)/setup.bash
+          cd $GITHUB_WORKSPACE/../catkin_ws &&
+          catkin build --summarize --no-status --force-color
+          # catkin run_tests --no-status --force-color && catkin_test_results
+          source devel/setup.bash
+          cd $GITHUB_WORKSPACE
+        # catkin build --summarize --no-status --force-color
+        #  make pylint
+        # TODO enable pylint
       - name: ROS1-2 Build, Test, Lint
-        if: ${{ matrix.ros_version == 1 }} && ${{ matrix.ros_python_version == 2 }}
+        if: ${{ matrix.ros_version == 1 }}
         shell: bash
         run: |
           sudo apt update && sudo apt install python-wstool
@@ -73,7 +94,7 @@ jobs:
           cp $GITHUB_WORKSPACE/.rosinstall ./
           wstool update -t ./
           cd ..
-          catkin init
+          catkin_init_workspace
           source /opt/ros/$(rosversion -d)/setup.bash
           cd $GITHUB_WORKSPACE/../catkin_ws &&
           catkin_make
@@ -84,27 +105,7 @@ jobs:
         # catkin build --summarize --no-status --force-color
         #  make pylint
         # TODO enable pylint
-      - name: ROS1-3 Build, Test, Lint
-        if: ${{ matrix.ros_version == 1 }} && ${{ matrix.ros_python_version == 3 }}
-        shell: bash
-        run: |
-          sudo apt update && sudo apt install python3-wstool
-          mkdir -p $GITHUB_WORKSPACE/../catkin_ws/src
-          cd $GITHUB_WORKSPACE/../catkin_ws/src
-          ln -s $GITHUB_WORKSPACE
-          cp $GITHUB_WORKSPACE/.rosinstall ./
-          wstool update -t ./
-          cd ..
-          catkin init
-          source /opt/ros/$(rosversion -d)/setup.bash
-          cd $GITHUB_WORKSPACE/../catkin_ws &&
-          catkin build --summarize --no-status --force-color
-          # catkin run_tests --no-status --force-color && catkin_test_results
-          source devel/setup.bash
-          cd $GITHUB_WORKSPACE
-        # catkin build --summarize --no-status --force-color
-        #  make pylint
-        # TODO enable pylint
+
 
   debian:
     runs-on: ubuntu-latest
