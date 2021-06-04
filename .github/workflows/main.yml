@@ -63,7 +63,7 @@ jobs:
           source install/setup.bash
         # colcon test && colcon test-result
       - name: ROS1-2 Build, Test, Lint
-        if: ${{ matrix.ros_version == 1 }} && ${{ matrix.ros_python_version == 3 }}
+        if: ${{ matrix.ros_version == 1 }} && ${{ matrix.ros_python_version == 2 }}
         shell: bash
         run: |
           sudo apt update && sudo apt install python-wstool
@@ -76,8 +76,9 @@ jobs:
           catkin init
           source /opt/ros/$(rosversion -d)/setup.bash
           cd $GITHUB_WORKSPACE/../catkin_ws &&
-          catkin build --summarize --no-status --force-color
-          catkin run_tests --no-status --force-color && catkin_test_results
+          catkin_make
+          # catkin build --summarize --no-status --force-color
+          # catkin run_tests --no-status --force-color && catkin_test_results
           source devel/setup.bash
           cd $GITHUB_WORKSPACE
         # catkin build --summarize --no-status --force-color
@@ -98,7 +99,7 @@ jobs:
           source /opt/ros/$(rosversion -d)/setup.bash
           cd $GITHUB_WORKSPACE/../catkin_ws &&
           catkin build --summarize --no-status --force-color
-          catkin run_tests --no-status --force-color && catkin_test_results
+          # catkin run_tests --no-status --force-color && catkin_test_results
           source devel/setup.bash
           cd $GITHUB_WORKSPACE
         # catkin build --summarize --no-status --force-color
