@@ -14,7 +14,7 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          # pip install -r requirements.txt
+        # pip install -r requirements.txt
       - name: Check
         run: make check_format
 
@@ -59,8 +59,8 @@ jobs:
         run: |
           source /opt/ros/$(rosversion -d)/setup.bash
           colcon build --continue-on-error
-          # colcon test && colcon test-result
           source install/setup.bash
+        # colcon test && colcon test-result
       - name: ROS1 Build, Test, Lint
         if: ${{ matrix.ros_version == 1 }}
         shell: bash
