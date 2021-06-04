@@ -63,7 +63,7 @@ jobs:
           source install/setup.bash
         # colcon test && colcon test-result
       - name: ROS1-2 Build, Test, Lint
-        if: ${{{ matrix.ros_version == 1} && {matrix.ros_python_version == 3 }}}
+        if: ${{ matrix.ros_version == 1 }} && ${{ matrix.ros_python_version == 3 }}
         shell: bash
         run: |
           sudo apt update && sudo apt install python-wstool
@@ -84,7 +84,7 @@ jobs:
         #  make pylint
         # TODO enable pylint
       - name: ROS1-3 Build, Test, Lint
-        if: ${{{ matrix.ros_version == 1} && {matrix.ros_python_version == 3 }}}
+        if: ${{ matrix.ros_version == 1 }} && ${{ matrix.ros_python_version == 3 }}
         shell: bash
         run: |
           sudo apt update && sudo apt install python3-wstool
