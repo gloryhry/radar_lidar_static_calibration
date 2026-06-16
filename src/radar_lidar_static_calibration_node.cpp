@@ -39,9 +39,13 @@
 
 #include <calibration.h>
 
+#include <tf/transform_listener.h>
+
 #include <termio.h>
 #include <stdio.h>
 #include <thread>
+#include <sys/stat.h>
+#include <sys/types.h>
 
 #define THR_FAP 0.2 // thresthold of false alarm probability
 
@@ -91,7 +95,8 @@ void stop2calibration()
     }
 }
 
-void calibration_callback(const sensor_msgs::PointCloud2ConstPtr lidar_msg, const sensor_msgs::PointCloud2ConstPtr radar_msg)
+void calibration_callback(const sensor_msgs::PointCloud2ConstPtr lidar_msg, const sensor_msgs::PointCloud2ConstPtr radar_msg,
+                          tf::TransformListener& tf_listener, const std::string& target_frame)
 {
     systime = ros::Time::now().toSec();
     pcl::PointCloud<pcl::PointXYZ>::Ptr lidar_cloud(new pcl::PointCloud<pcl::PointXYZ>());
@@ -99,13 +104,62 @@ void calibration_callback(const sensor_msgs::PointCloud2ConstPtr lidar_msg, cons
     pcl::fromROSMsg(*lidar_msg, *lidar_cloud);
     pcl::fromROSMsg(*radar_msg, *radar_cloud);
 
+    // TF transform: convert lidar point cloud to target frame
+    if (!target_frame.empty())
+    {
+        std::string source_frame = lidar_msg->header.frame_id;
+        if (!source_frame.empty() && source_frame != target_frame)
+        {
+            bool tf_ok = tf_listener.waitForTransform(
+                target_frame, source_frame,
+                lidar_msg->header.stamp, ros::Duration(0.5));
+
+            if (!tf_ok)
+            {
+                ROS_WARN_STREAM("TF timeout: cannot transform from "
+                    << source_frame << " to " << target_frame);
+                return;
+            }
+
+            sensor_msgs::PointCloud2 transformed_msg;
+            try
+            {
+                pcl_ros::transformPointCloud(
+                    target_frame, *lidar_msg, transformed_msg, tf_listener);
+                lidar_cloud->clear();
+                pcl::fromROSMsg(transformed_msg, *lidar_cloud);
+            }
+            catch (const tf::TransformException& e)
+            {
+                ROS_WARN_STREAM("TF transform failed: " << e.what());
+                return;
+            }
+        }
+    }
+
     RadarCalibration radar_cali(lidar_cloud, radar_cloud);
     // radar_cali.showLidar();
     // radar_cali.showRadar();
     if(sys_pause)
     {
-        pcl::io::savePCDFileASCII(pkg_loc + "/data/radar_" + std::to_string(systime) + ".pcd", *radar_cloud);
-        pcl::io::savePCDFileASCII(pkg_loc + "/data/lidar_" + std::to_string(systime) + ".pcd", *lidar_cloud);
+        string data_dir = pkg_loc + "/data/";
+        struct stat st;
+        if (stat(data_dir.c_str(), &st) != 0)
+        {
+            if (mkdir(data_dir.c_str(), 0755) == 0)
+            {
+                ROS_WARN_STREAM("Created data directory: " << data_dir);
+            }
+            else
+            {
+                ROS_ERROR_STREAM("Failed to create data directory: " << data_dir);
+                sys_pause = false;
+                return;
+            }
+        }
+        pcl::io::savePCDFileASCII(data_dir + "radar_" + std::to_string(systime) + ".pcd", *radar_cloud);
+        pcl::io::savePCDFileASCII(data_dir + "lidar_" + std::to_string(systime) + ".pcd", *lidar_cloud);
+        ROS_INFO_STREAM("Saved PCD files to: " << data_dir);
         sys_pause = false;
     }
 }
@@ -125,13 +179,20 @@ int main(int argc, char **argv)
     private_nh.param<string>("radar_topic", radar_topic, "/radar_PointCloud2");
     private_nh.param<int>("sync_queue_size", sync_queue_size, 500);
 
+    string target_frame;
+    private_nh.param<string>("target_frame", target_frame, "");
+
+    tf::TransformListener tf_listener;
+
     message_filters::Subscriber<sensor_msgs::PointCloud2> lidar_sub(nh, lidar_topic, 10);
     message_filters::Subscriber<sensor_msgs::PointCloud2> radar_sub(nh, radar_topic, 10);
     typedef sync_policies::ApproximateTime<sensor_msgs::PointCloud2, sensor_msgs::PointCloud2> MySyncPolicy;
     Synchronizer<MySyncPolicy> sync(MySyncPolicy(sync_queue_size), lidar_sub, radar_sub);
     ROS_INFO_STREAM("lidar topic required. Lidar topic: " << lidar_topic);
     ROS_INFO_STREAM("radar topic required. Radar topic: " << radar_topic);
-    sync.registerCallback(boost::bind(&calibration_callback, _1, _2));
+    sync.registerCallback(boost::bind(&calibration_callback, _1, _2,
+                                       boost::ref(tf_listener),
+                                       boost::cref(target_frame)));
 
     std::thread stop_to_calibrate(stop2calibration);
     stop_to_calibrate.detach();

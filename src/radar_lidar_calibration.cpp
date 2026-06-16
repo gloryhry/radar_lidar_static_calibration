@@ -36,6 +36,8 @@
 #include <vector>
 #include <string>
 #include <dirent.h>
+#include <sys/stat.h>
+#include <sys/types.h>
 
 #include <radar_lidar_calibration.h>
 
@@ -62,6 +64,13 @@ int main(int argc, char **argv)
     struct dirent *ptr;
     DIR *dir;
     string PATH = pkg_loc + "/data/";
+    struct stat st;
+    if (stat(PATH.c_str(), &st) != 0)
+    {
+        ROS_ERROR_STREAM("Data directory does not exist: " << PATH);
+        ROS_ERROR_STREAM("Please run radar_lidar_static_calibration_node first to collect data, or create the directory manually.");
+        return -1;
+    }
     dir = opendir(PATH.c_str());
     vector<string> files;
     // cout << "文件列表: " << endl;

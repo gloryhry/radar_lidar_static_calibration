@@ -3,6 +3,8 @@
 #include <cmath>
 #include <iostream>
 #include <fstream>
+#include <sys/stat.h>
+#include <sys/types.h>
 
 #include <sensor_msgs/PointCloud2.h>
 #include <nav_msgs/Odometry.h>
@@ -87,6 +89,21 @@ int main(int argc, char **argv)
     ros::init(argc, argv, "radar_match");
     pkg_loc = ros::package::getPath("radar_lidar_static_calibration");
     file_path = pkg_loc + "/data/calibration.csv";
+
+    string data_dir = pkg_loc + "/data/";
+    struct stat st;
+    if (stat(data_dir.c_str(), &st) != 0)
+    {
+        if (mkdir(data_dir.c_str(), 0755) == 0)
+        {
+            ROS_WARN_STREAM("Created data directory: " << data_dir);
+        }
+        else
+        {
+            ROS_ERROR_STREAM("Failed to create data directory: " << data_dir);
+            return -1;
+        }
+    }
 
     fstream out(file_path, ios::out | ios::trunc);
     out.close();
