@@ -23,6 +23,9 @@
 #include <fstream>
 #include <iostream>
 
+#include <boost/thread/mutex.hpp>
+#include <boost/thread/thread.hpp>
+
 #include <pcl/io/pcd_io.h>
 #include <pcl/point_cloud.h>
 #include <pcl/point_types.h>

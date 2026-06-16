@@ -68,8 +68,6 @@ jobs:
           mkdir -p $GITHUB_WORKSPACE/../catkin_ws/src
           cd $GITHUB_WORKSPACE/../catkin_ws/src
           ln -s $GITHUB_WORKSPACE
-          cp $GITHUB_WORKSPACE/.rosinstall ./
-          wstool update -t ./
           cd ..
           catkin init
           source /opt/ros/$(rosversion -d)/setup.bash

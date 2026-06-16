@@ -32,6 +32,9 @@
 #include <pcl/point_types.h>
 #include <pcl/visualization/pcl_visualizer.h>
 
+#include <boost/thread/mutex.hpp>
+#include <boost/thread/thread.hpp>
+
 typedef pcl::PointXYZRGBA PointT;
 typedef pcl::PointCloud<PointT> PointCloudT;
 

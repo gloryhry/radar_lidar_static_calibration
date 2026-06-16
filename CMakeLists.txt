@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.0.2)
 project(radar_lidar_static_calibration)
 
 ## Compile as C++11, supported in ROS Kinetic and newer
-add_compile_options(-std=c++11)
+add_compile_options(-std=c++17)
 # set(CMAKE_BUILD_TYPE Debug)
 
 ## Find catkin macros and libraries
@@ -19,7 +19,6 @@ find_package(catkin REQUIRED COMPONENTS
   tf
   visualization_msgs
   nav_msgs
-  ecal_to_ros
 )
 
 ## System dependencies are found with CMake's conventions

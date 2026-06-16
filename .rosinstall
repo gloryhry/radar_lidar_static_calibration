@@ -1,4 +1,0 @@
-- git:
-    local-name: ecal_to_ros
-    uri: https://github.com/gloryhry/Ecal-to-ROS.git
-    version: main

@@ -22,8 +22,6 @@
 #include <ros/package.h>
 #include <ros/ros.h>
 #include <sensor_msgs/PointCloud2.h>
-#include <ecal_to_ros/RadarDetectionImage.h>
-#include <ecal_to_ros/RadarDetection.h>
 #include <cmath>
 #include <fstream>
 #include <iostream>
@@ -93,28 +91,13 @@ void stop2calibration()
     }
 }
 
-void calibration_callback(const sensor_msgs::PointCloud2ConstPtr lidar_msg, const ecal_to_ros::RadarDetectionImageConstPtr radar_msg)
+void calibration_callback(const sensor_msgs::PointCloud2ConstPtr lidar_msg, const sensor_msgs::PointCloud2ConstPtr radar_msg)
 {
     systime = ros::Time::now().toSec();
     pcl::PointCloud<pcl::PointXYZ>::Ptr lidar_cloud(new pcl::PointCloud<pcl::PointXYZ>());
     pcl::PointCloud<pcl::PointXYZ>::Ptr radar_cloud(new pcl::PointCloud<pcl::PointXYZ>());
     pcl::fromROSMsg(*lidar_msg, *lidar_cloud);
-
-    uint32_t N = radar_msg->u_NofDetections;
-    for (auto i = 0; i < N; i++)
-    {
-        if (radar_msg->a_RadarDetectionList[i].f_Pdh0 < THR_FAP)
-        {
-            pcl::PointXYZ p;
-            float r = radar_msg->a_RadarDetectionList[i].f_Range;
-            float v = radar_msg->a_RadarDetectionList[i].f_VrelRad;
-            float phi = -radar_msg->a_RadarDetectionList[i].a_AzAng_hyp[0];
-            p.x = r * sin(phi);
-            p.y = r * cos(phi);
-            p.z = 0;
-            radar_cloud->push_back(p);
-        }
-    }
+    pcl::fromROSMsg(*radar_msg, *radar_cloud);
 
     RadarCalibration radar_cali(lidar_cloud, radar_cloud);
     // radar_cali.showLidar();
@@ -143,8 +126,8 @@ int main(int argc, char **argv)
     private_nh.param<int>("sync_queue_size", sync_queue_size, 500);
 
     message_filters::Subscriber<sensor_msgs::PointCloud2> lidar_sub(nh, lidar_topic, 10);
-    message_filters::Subscriber<ecal_to_ros::RadarDetectionImage> radar_sub(nh, radar_topic, 10);
-    typedef sync_policies::ApproximateTime<sensor_msgs::PointCloud2, ecal_to_ros::RadarDetectionImage> MySyncPolicy;
+    message_filters::Subscriber<sensor_msgs::PointCloud2> radar_sub(nh, radar_topic, 10);
+    typedef sync_policies::ApproximateTime<sensor_msgs::PointCloud2, sensor_msgs::PointCloud2> MySyncPolicy;
     Synchronizer<MySyncPolicy> sync(MySyncPolicy(sync_queue_size), lidar_sub, radar_sub);
     ROS_INFO_STREAM("lidar topic required. Lidar topic: " << lidar_topic);
     ROS_INFO_STREAM("radar topic required. Radar topic: " << radar_topic);
