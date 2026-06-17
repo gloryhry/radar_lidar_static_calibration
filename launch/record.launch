@@ -1,0 +1,13 @@
+<launch>
+    <node pkg="tf2_ros"
+      type="static_transform_publisher"
+      name="base_link_to_hesai_lidar"
+      args="0.33767 0.0 0.08134 0.5 0.5 0.5 0.5 base_link hesai_lidar" />
+
+    <node pkg="rosbag"
+            type="record"
+            name="record_bag"
+            output="screen"
+            args="-o /rosbag/radar /tf /tf_static /slam_lidar/points /slam_lidar/imu1 /sdk/imu /ars620_front/rdi_points /ars620_rear/rdi_points" />
+            <!-- 录制 本体imu 前雷达imu 融合点云 毫米波雷达点云 -->
+</launch>

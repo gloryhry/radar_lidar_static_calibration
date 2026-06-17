@@ -1,8 +1,10 @@
 <launch>
 
     <node pkg="radar_lidar_static_calibration" type="radar_lidar_static_calibration_node" name="static_calibration" output="screen" >
-        <param name="lidar_topic" value="/lidar/vlp16_back/PointCloud2" />
+        <param name="lidar_topic" value="/slam_lidar/points" />
         <param name="radar_topic" value="/RadarDetectionImageNear_0" />
         <!-- <param name="target_frame" value="base_link" /> -->
     </node>
+
+    
 </launch>
